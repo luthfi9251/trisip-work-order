@@ -13,11 +13,18 @@ import {
 } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/app/(with-auth)/AppSidebar";
 import { Separator } from "@/components/ui/separator";
+import { sidaBarUserInfo } from "../auth.action";
 
-export default function layout({ children }: { children: React.ReactNode }) {
+export default async function layout({
+    children,
+}: {
+    children: React.ReactNode;
+}) {
+    let session = await sidaBarUserInfo();
+
     return (
         <SidebarProvider>
-            <AppSidebar />
+            <AppSidebar user={session} />
             <SidebarInset>
                 <header className="flex h-16 shrink-0 items-center gap-2">
                     <div className="flex items-center gap-2 px-4">

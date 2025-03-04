@@ -17,6 +17,7 @@ const data = {
     user: {
         name: "shadcn",
         email: "m@example.com",
+        role: "Admin",
         avatar: "/avatars/shadcn.jpg",
     },
     projects: [
@@ -28,7 +29,15 @@ const data = {
     ],
 };
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
+    user: {
+        name: string;
+        email: string;
+        role: string;
+    };
+}
+
+export function AppSidebar({ user, ...props }: AppSidebarProps) {
     return (
         <Sidebar variant="inset" {...props}>
             <SidebarHeader>
@@ -56,7 +65,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <NavMenu projects={data.projects} />
             </SidebarContent>
             <SidebarFooter>
-                <NavUser user={data.user} />
+                <NavUser user={user} />
             </SidebarFooter>
         </Sidebar>
     );
