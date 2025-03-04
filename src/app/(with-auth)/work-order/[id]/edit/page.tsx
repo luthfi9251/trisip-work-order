@@ -6,7 +6,7 @@ import {
     CardContent,
     CardFooter,
 } from "@/components/ui/card";
-import WorkOrderForm from "../../create/WorkOrderForm";
+import WorkOrderForm from "../../WorkOrderForm";
 import { WorkOrderType } from "../../type";
 
 const dummyData: WorkOrderType = {

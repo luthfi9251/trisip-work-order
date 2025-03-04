@@ -31,24 +31,32 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { WorkOrderType } from "../type";
+import { WorkOrderType } from "./type";
 import { Label } from "@/components/ui/label";
+import { User } from "@/lib/entities/models/user.model";
+import {
+    WorkOrderStatus,
+    WorkOrderStatusType,
+} from "@/lib/entities/models/work-order.model";
 
 const formSchema = z.object({
-    product_name: z.string().min(1),
-    quantity: z.number(),
+    product_name: z.string().nonempty("Cannot be empty"),
+    quantity: z.coerce.number().min(1, "Minimum quantity is 1"),
     deadline: z.coerce.date(),
-    status: z.string(),
-    assigned_to: z.string(),
+    status: z.string().nonempty("Cannot be empty"),
+    assigned_to: z.string().nonempty("Cannot be empty"),
 });
 
+export type WorkFormValueType = z.infer<typeof formSchema>;
 export type WorkOrderFormProps = {
     isEditing: boolean;
+    operators: User[];
+    onSubmit: (values: WorkFormValueType) => void;
     editingValue?: WorkOrderType;
 };
 
 export default function WorkOrderForm(props: WorkOrderFormProps) {
-    const form = useForm<z.infer<typeof formSchema>>({
+    const form = useForm<WorkFormValueType>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             product_name: props.editingValue
@@ -63,26 +71,10 @@ export default function WorkOrderForm(props: WorkOrderFormProps) {
         },
     });
 
-    function onSubmit(values: z.infer<typeof formSchema>) {
-        try {
-            console.log(values);
-            toast(
-                <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-                    <code className="text-white">
-                        {JSON.stringify(values, null, 2)}
-                    </code>
-                </pre>
-            );
-        } catch (error) {
-            console.error("Form submission error", error);
-            toast.error("Failed to submit the form. Please try again.");
-        }
-    }
-
     return (
         <Form {...form}>
             <form
-                onSubmit={form.handleSubmit(onSubmit)}
+                onSubmit={form.handleSubmit(props.onSubmit)}
                 className="py-10 grid lg:grid-cols-2 gap-8"
             >
                 {props.isEditing && props.editingValue && (
@@ -116,11 +108,7 @@ export default function WorkOrderForm(props: WorkOrderFormProps) {
                         <FormItem>
                             <FormLabel>Quantity</FormLabel>
                             <FormControl>
-                                <Input
-                                    placeholder=""
-                                    type="number"
-                                    {...field}
-                                />
+                                <Input type="number" {...field} />
                             </FormControl>
 
                             <FormMessage />
@@ -132,14 +120,14 @@ export default function WorkOrderForm(props: WorkOrderFormProps) {
                     name="deadline"
                     render={({ field }) => (
                         <FormItem className="flex flex-col">
-                            <FormLabel>Deadline</FormLabel>
+                            <FormLabel>Date of birth</FormLabel>
                             <Popover>
                                 <PopoverTrigger asChild>
                                     <FormControl>
                                         <Button
                                             variant={"outline"}
                                             className={cn(
-                                                "w-full pl-3 text-left font-normal",
+                                                "font-normal",
                                                 !field.value &&
                                                     "text-muted-foreground"
                                             )}
@@ -165,7 +153,6 @@ export default function WorkOrderForm(props: WorkOrderFormProps) {
                                     />
                                 </PopoverContent>
                             </Popover>
-
                             <FormMessage />
                         </FormItem>
                     )}
@@ -186,15 +173,14 @@ export default function WorkOrderForm(props: WorkOrderFormProps) {
                                     </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                    <SelectItem value="m@example.com">
-                                        m@example.com
-                                    </SelectItem>
-                                    <SelectItem value="m@google.com">
-                                        m@google.com
-                                    </SelectItem>
-                                    <SelectItem value="m@support.com">
-                                        m@support.com
-                                    </SelectItem>
+                                    {props.operators.map((item, idx) => (
+                                        <SelectItem
+                                            value={item.id}
+                                            key={item.id}
+                                        >
+                                            {item.name}
+                                        </SelectItem>
+                                    ))}
                                 </SelectContent>
                             </Select>
 
@@ -218,15 +204,16 @@ export default function WorkOrderForm(props: WorkOrderFormProps) {
                                     </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                    <SelectItem value="m@example.com">
-                                        m@example.com
-                                    </SelectItem>
-                                    <SelectItem value="m@google.com">
-                                        m@google.com
-                                    </SelectItem>
-                                    <SelectItem value="m@support.com">
-                                        m@support.com
-                                    </SelectItem>
+                                    {Object.values(WorkOrderStatus).map(
+                                        (status) => (
+                                            <SelectItem
+                                                key={status}
+                                                value={status}
+                                            >
+                                                {status.replace("_", " ")}
+                                            </SelectItem>
+                                        )
+                                    )}
                                 </SelectContent>
                             </Select>
 

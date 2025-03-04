@@ -6,9 +6,13 @@ import {
     CardContent,
     CardFooter,
 } from "@/components/ui/card";
-import WorkOrderForm from "./WorkOrderForm";
+import WorkOrderForm from "../WorkOrderForm";
+import { getOperatorsAction } from "../work-order.action";
+import WorkFormWrapper from "./WorkFormWrapper";
 
-export default function Page() {
+export default async function Page() {
+    const operatorsResponse = await getOperatorsAction();
+    const operators = operatorsResponse.data ?? [];
     return (
         <div>
             <Card>
@@ -18,7 +22,7 @@ export default function Page() {
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <WorkOrderForm isEditing={false} />
+                    <WorkFormWrapper operators={operators} />
                 </CardContent>
             </Card>
         </div>
