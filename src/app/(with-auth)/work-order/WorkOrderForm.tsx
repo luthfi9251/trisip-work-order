@@ -35,6 +35,8 @@ import { WorkOrderType } from "./type";
 import { Label } from "@/components/ui/label";
 import { User } from "@/lib/entities/models/user.model";
 import {
+    WorkOrder,
+    WorkOrderRecord,
     WorkOrderStatus,
     WorkOrderStatusType,
 } from "@/lib/entities/models/work-order.model";
@@ -52,7 +54,7 @@ export type WorkOrderFormProps = {
     isEditing: boolean;
     operators: User[];
     onSubmit: (values: WorkFormValueType) => void;
-    editingValue?: WorkOrderType;
+    editingValue?: WorkOrder;
 };
 
 export default function WorkOrderForm(props: WorkOrderFormProps) {
@@ -64,7 +66,7 @@ export default function WorkOrderForm(props: WorkOrderFormProps) {
                 : "",
             quantity: props.editingValue ? props.editingValue.quantity : 0,
             assigned_to: props.editingValue
-                ? props.editingValue.asigned_to
+                ? props.editingValue.assigned_to.id
                 : "",
             status: props.editingValue ? props.editingValue.status : "",
             deadline: new Date(),
@@ -83,7 +85,7 @@ export default function WorkOrderForm(props: WorkOrderFormProps) {
                         <Input
                             type="text"
                             disabled
-                            defaultValue={props.editingValue.no_wo}
+                            defaultValue={props.editingValue.wo_num}
                         />
                     </div>
                 )}{" "}
@@ -120,7 +122,7 @@ export default function WorkOrderForm(props: WorkOrderFormProps) {
                     name="deadline"
                     render={({ field }) => (
                         <FormItem className="flex flex-col">
-                            <FormLabel>Date of birth</FormLabel>
+                            <FormLabel>Deadline</FormLabel>
                             <Popover>
                                 <PopoverTrigger asChild>
                                     <FormControl>

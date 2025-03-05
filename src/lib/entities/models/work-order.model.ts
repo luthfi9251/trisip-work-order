@@ -7,10 +7,9 @@ export const WorkOrderStatus = {
     CANCELED: "CANCELED",
 };
 
-export type WorkOrderStatusType =
-    (typeof WorkOrderStatus)[keyof typeof WorkOrderStatus];
+export type WorkOrderStatusType = keyof typeof WorkOrderStatus;
 
-export type WorkOrderUserAssigned = Omit<User, "password">;
+export type WorkOrderUserAssigned = Omit<User, "password" | "role">;
 
 export type WorkOrder = {
     wo_num: string;
@@ -27,7 +26,18 @@ export type WorkOrderCreateDTO = Omit<
     "wo_num" | "assigned_to" | "created_by"
 > & { assigned_to_id: string };
 
+export type WorkOrderInputRecord = Omit<
+    WorkOrder,
+    "assigned_to" | "created_by"
+> & {
+    assigned_to: string;
+    created_by: string;
+};
+
+export type WorkOrderUpdateRecord = WorkOrderInputRecord & { id: number };
+
 export type WorkOrderRecord = Omit<WorkOrder, "assigned_to" | "created_by"> & {
+    id: number;
     assigned_to: string;
     created_by: string;
 };

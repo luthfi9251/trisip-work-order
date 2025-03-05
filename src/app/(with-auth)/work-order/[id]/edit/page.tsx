@@ -8,18 +8,32 @@ import {
 } from "@/components/ui/card";
 import WorkOrderForm from "../../WorkOrderForm";
 import { WorkOrderType } from "../../type";
+import { WorkOrderRecord } from "@/lib/entities/models/work-order.model";
+import EditWorkFormWrapper from "./EditFormWrapper";
+import {
+    getEditWorkOrderAction,
+    getOperatorsAction,
+} from "../../work-order.action";
 
-const dummyData: WorkOrderType = {
-    id: "1",
-    no_wo: "WO-2223-303-22",
-    product_name: "Sweet jar",
-    quantity: 20,
-    deadline: "2022-10-10",
-    status: "pending",
-    asigned_to: "John Doe",
-};
+export default async function Page({
+    params,
+}: {
+    params: Promise<{ id: string }>;
+}) {
+    const workOrderId = (await params).id;
+    const workOrderData = getEditWorkOrderAction(workOrderId);
+    const operatorsResponse = getOperatorsAction();
 
-export default function Page() {
+    const [workOrderDataRes, operatorResponse] = await Promise.all([
+        workOrderData,
+        operatorsResponse,
+    ]);
+    const operators = operatorResponse.data ?? [];
+    if (!workOrderDataRes.data) {
+        throw new Error(workOrderDataRes.error?.message);
+    }
+    const editData = workOrderDataRes.data;
+
     return (
         <div>
             <Card>
@@ -27,7 +41,10 @@ export default function Page() {
                     <CardTitle className="text-3xl">Edit Work Order</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <WorkOrderForm editingValue={dummyData} isEditing />
+                    <EditWorkFormWrapper
+                        editingValue={editData}
+                        operators={operators}
+                    />
                 </CardContent>
             </Card>
         </div>

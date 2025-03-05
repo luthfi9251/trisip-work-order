@@ -3,8 +3,6 @@ import {
     BreadcrumbList,
     BreadcrumbItem,
     BreadcrumbLink,
-    BreadcrumbSeparator,
-    BreadcrumbPage,
 } from "@/components/ui/breadcrumb";
 import {
     SidebarProvider,
@@ -20,7 +18,7 @@ export default async function layout({
 }: {
     children: React.ReactNode;
 }) {
-    let session = await sidaBarUserInfo();
+    const session = await sidaBarUserInfo();
 
     return (
         <SidebarProvider>

@@ -4,7 +4,6 @@ import {
     Dialog,
     DialogContent,
     DialogDescription,
-    DialogFooter,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
@@ -17,7 +16,6 @@ import {
     FormMessage,
     Form,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import {
     Popover,

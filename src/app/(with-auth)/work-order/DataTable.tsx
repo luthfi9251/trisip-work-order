@@ -30,17 +30,19 @@ import {
     DropdownMenuCheckboxItem,
     DropdownMenuContent,
     DropdownMenuItem,
-    DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import FilterForm from "./FilterForm";
-import { WorkOrderType } from "./type";
+import { WorkOrderRecord } from "@/lib/entities/models/work-order.model";
+import { format } from "date-fns";
+import { UserRole } from "@/lib/entities/models/user.model";
+import useRoleCheck from "@/hooks/use-role-check";
 
-const columnsList: ColumnDef<WorkOrderType, any>[] = [
+const columnsList: ColumnDef<WorkOrderRecord, any>[] = [
     {
-        accessorKey: "no_wo",
+        accessorKey: "wo_num",
         header: "No. Work Order",
     },
     {
@@ -54,9 +56,12 @@ const columnsList: ColumnDef<WorkOrderType, any>[] = [
     {
         accessorKey: "deadline",
         header: "Deadline",
+        cell: (props) => {
+            return format(props.row.original.deadline, "EEEE, d MMMM yyyy");
+        },
     },
     {
-        accessorKey: "asigned_to",
+        accessorKey: "assigned_to",
         header: "Assigned to",
     },
     {
@@ -66,13 +71,13 @@ const columnsList: ColumnDef<WorkOrderType, any>[] = [
             return (
                 <span
                     className={`px-2 py-1 rounded-full text-xs uppercase ${
-                        props.row.original.status === "pending"
+                        props.row.original.status === "PENDING"
                             ? "bg-yellow-100 text-yellow-800"
-                            : props.row.original.status === "processing"
+                            : props.row.original.status === "IN_PROGRESS"
                             ? "bg-blue-100 text-blue-800"
-                            : props.row.original.status === "completed"
+                            : props.row.original.status === "COMPLETED"
                             ? "bg-green-100 text-green-800"
-                            : props.row.original.status === "canceled"
+                            : props.row.original.status === "CANCELED"
                             ? "bg-red-100 text-red-800"
                             : ""
                     }`}
@@ -86,6 +91,8 @@ const columnsList: ColumnDef<WorkOrderType, any>[] = [
         id: "actions",
         header: "Actions",
         cell: (props) => {
+            const isProductionMager = useRoleCheck(UserRole.PRODUCTION_MANAGER);
+            const isOperator = useRoleCheck(UserRole.OPERATOR);
             return (
                 <div className="flex items-center gap-2">
                     <Button variant="secondary" size="sm" asChild>
@@ -96,20 +103,24 @@ const columnsList: ColumnDef<WorkOrderType, any>[] = [
                             View
                         </Link>
                     </Button>
-                    <Button variant="default" size="sm" asChild>
-                        <Link
-                            href={`/work-order/${props.row.original.id}/edit`}
-                        >
-                            <Pencil /> Edit
-                        </Link>
-                    </Button>
-                    <Button variant="primary" size="sm" asChild>
-                        <Link
-                            href={`/work-order/${props.row.original.id}/edit`}
-                        >
-                            <Cog /> Process
-                        </Link>
-                    </Button>
+                    {isProductionMager && (
+                        <Button variant="default" size="sm" asChild>
+                            <Link
+                                href={`/work-order/${props.row.original.id}/edit`}
+                            >
+                                <Pencil /> Edit
+                            </Link>
+                        </Button>
+                    )}
+                    {isOperator && (
+                        <Button variant="primary" size="sm" asChild>
+                            <Link
+                                href={`/work-order/${props.row.original.id}/edit`}
+                            >
+                                <Cog /> Process
+                            </Link>
+                        </Button>
+                    )}
                 </div>
             );
         },
@@ -117,19 +128,25 @@ const columnsList: ColumnDef<WorkOrderType, any>[] = [
 ];
 
 interface DataTableProps {
-    data: WorkOrderType[];
+    data: WorkOrderRecord[];
 }
 
-function TableActionHeader({ table }: { table: TabelType<WorkOrderType> }) {
+function TableActionHeader({ table }: { table: TabelType<WorkOrderRecord> }) {
+    const isProductionMager = useRoleCheck(UserRole.PRODUCTION_MANAGER);
+    const isOperator = useRoleCheck(UserRole.OPERATOR);
+
     return (
         <div className="flex items-center justify-between py-4">
             <Input
                 placeholder="Find work order number"
                 value={
-                    (table.getColumn("no_wo")?.getFilterValue() as string) ?? ""
+                    (table.getColumn("wo_num")?.getFilterValue() as string) ??
+                    ""
                 }
                 onChange={(event) =>
-                    table.getColumn("no_wo")?.setFilterValue(event.target.value)
+                    table
+                        .getColumn("wo_num")
+                        ?.setFilterValue(event.target.value)
                 }
                 className="max-w-sm"
             />
@@ -168,14 +185,22 @@ function TableActionHeader({ table }: { table: TabelType<WorkOrderType> }) {
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
-                        <DropdownMenuItem asChild>
-                            <Link href="/work-order/create">
-                                Create work Order
-                            </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem>Management Report</DropdownMenuItem>
-                        <DropdownMenuItem>Operator Report</DropdownMenuItem>
+                        {isProductionMager && (
+                            <>
+                                <DropdownMenuItem asChild>
+                                    <Link href="/work-order/create">
+                                        Create work Order
+                                    </Link>
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem>
+                                    Management Report
+                                </DropdownMenuItem>
+                            </>
+                        )}
+                        {isOperator && (
+                            <DropdownMenuItem>Operator Report</DropdownMenuItem>
+                        )}
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>

@@ -1,12 +1,4 @@
-import {
-    Card,
-    CardHeader,
-    CardTitle,
-    CardDescription,
-    CardContent,
-    CardFooter,
-} from "@/components/ui/card";
-import WorkOrderForm from "../WorkOrderForm";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { getOperatorsAction } from "../work-order.action";
 import WorkFormWrapper from "./WorkFormWrapper";
 

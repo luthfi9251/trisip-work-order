@@ -1,5 +1,6 @@
 import {
     WorkOrderCreateDTO,
+    WorkOrderInputRecord,
     WorkOrderRecord,
 } from "@/lib/entities/models/work-order.model";
 import IWorkOrderRepository from "../../repositories/work-order.repository.interface";
@@ -41,7 +42,7 @@ export class CreateWorkOrderUseCase {
         ).padStart(3, "0")}`;
 
         //save wo data
-        const workOrderInsertData: WorkOrderRecord = {
+        const workOrderInsertData: WorkOrderInputRecord = {
             wo_num: woNum,
             status: data.status,
             deadline: data.deadline,

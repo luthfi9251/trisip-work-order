@@ -1,22 +1,13 @@
 "use client";
 
-import {
-    BadgeCheck,
-    Bell,
-    ChevronsUpDown,
-    CreditCard,
-    LogOut,
-    Sparkles,
-} from "lucide-react";
+import { ChevronsUpDown, LogOut } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
     DropdownMenu,
     DropdownMenuContent,
-    DropdownMenuGroup,
     DropdownMenuItem,
     DropdownMenuLabel,
-    DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -60,7 +51,7 @@ export default function NavUser({
                                     {user.name}
                                 </span>
                                 <span className="truncate text-xs">
-                                    {user.role}
+                                    {user.role.replace("_", " ")}
                                 </span>
                             </div>
                             <ChevronsUpDown className="ml-auto size-4" />

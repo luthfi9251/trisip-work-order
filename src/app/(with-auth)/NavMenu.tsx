@@ -1,28 +1,12 @@
 "use client";
 
-import {
-    Folder,
-    MoreHorizontal,
-    Share,
-    Trash2,
-    type LucideIcon,
-} from "lucide-react";
-
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { type LucideIcon } from "lucide-react";
 import {
     SidebarGroup,
     SidebarGroupLabel,
     SidebarMenu,
-    SidebarMenuAction,
     SidebarMenuButton,
     SidebarMenuItem,
-    useSidebar,
 } from "@/components/ui/sidebar";
 
 export default function NavMenu({
@@ -34,8 +18,6 @@ export default function NavMenu({
         icon: LucideIcon;
     }[];
 }) {
-    const { isMobile } = useSidebar();
-
     return (
         <SidebarGroup className="group-data-[collapsible=icon]:hidden">
             <SidebarGroupLabel>Menu</SidebarGroupLabel>
