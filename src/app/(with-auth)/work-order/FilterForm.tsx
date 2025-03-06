@@ -35,15 +35,26 @@ import { Calendar } from "@/components/ui/calendar";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { TableFilterType } from "./DataTable";
+import { useEffect, useState } from "react";
+import { User } from "@/lib/entities/models/user.model";
+import { getOperatorsAction } from "./work-order.action";
 
 const formSchema = z.object({
-    deadline_start: z.coerce.date(),
-    deadline_end: z.coerce.date(),
-    assigned_id: z.string(),
+    deadline_start: z.coerce.date().optional().nullable(),
+    deadline_end: z.coerce.date().optional().nullable(),
+    assigned_id: z.string().optional(),
 });
 type FilterType = z.infer<typeof formSchema>;
 
-export default function FilterForm() {
+export default function FilterForm({
+    onFilterChange,
+}: {
+    onFilterChange: (filter: TableFilterType) => void;
+}) {
+    const [open, setOpen] = useState(false);
+    const [operatorList, setOperatorList] = useState<User[]>([]);
+
     const form = useForm<FilterType>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -53,10 +64,49 @@ export default function FilterForm() {
         },
     });
 
-    function onSubmit(values: FilterType) {}
+    const onSubmit = (values: FilterType) => {
+        const data: TableFilterType = {
+            start_date: values.deadline_start?.toISOString() ?? "",
+            end_date: values.deadline_end?.toISOString() ?? "",
+            assigned_to: values.assigned_id ?? "",
+        };
+        onFilterChange(data);
+        setOpen(false);
+    };
+
+    const onReset = () => {
+        form.reset({
+            deadline_start: null as unknown as Date,
+            deadline_end: null as unknown as Date, //bug in radix ui, reset should use empty string """
+            assigned_id: "",
+        });
+        // form.setValue("deadline_start", undefined);
+        const data: TableFilterType = {
+            start_date: "",
+            end_date: "",
+            assigned_to: "",
+        };
+        onFilterChange(data);
+    };
+
+    useEffect(() => {
+        getOperatorsAction()
+            .then((res) => {
+                if (res.status === "success") {
+                    if (res.data) {
+                        setOperatorList(res.data);
+                    }
+                } else {
+                    throw res.error?.message;
+                }
+            })
+            .catch((err) => {
+                return;
+            });
+    }, []);
 
     return (
-        <Dialog>
+        <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
                 <Button variant="outline">
                     <Filter />
@@ -68,7 +118,7 @@ export default function FilterForm() {
                     <DialogDescription>
                         You can filter data by{" "}
                         <span className="font-semibold">Deadline</span> or
-                        <span className="font-semibold">Asignee</span>.
+                        <span className="font-semibold"> Asignee</span>.
                     </DialogDescription>
                 </DialogHeader>
 
@@ -117,7 +167,11 @@ export default function FilterForm() {
                                                 >
                                                     <Calendar
                                                         mode="single"
-                                                        selected={field.value}
+                                                        selected={
+                                                            field.value as
+                                                                | Date
+                                                                | undefined
+                                                        }
                                                         onSelect={
                                                             field.onChange
                                                         }
@@ -167,7 +221,11 @@ export default function FilterForm() {
                                                 >
                                                     <Calendar
                                                         mode="single"
-                                                        selected={field.value}
+                                                        selected={
+                                                            field.value as
+                                                                | Date
+                                                                | undefined
+                                                        }
                                                         onSelect={
                                                             field.onChange
                                                         }
@@ -192,22 +250,24 @@ export default function FilterForm() {
                                             <Select
                                                 onValueChange={field.onChange}
                                                 defaultValue={field.value}
+                                                value={field.value}
                                             >
                                                 <FormControl>
                                                     <SelectTrigger>
-                                                        <SelectValue placeholder="" />
+                                                        <SelectValue placeholder="Chosee Asignee" />
                                                     </SelectTrigger>
                                                 </FormControl>
                                                 <SelectContent>
-                                                    <SelectItem value="m@example.com">
-                                                        m@example.com
-                                                    </SelectItem>
-                                                    <SelectItem value="m@google.com">
-                                                        m@google.com
-                                                    </SelectItem>
-                                                    <SelectItem value="m@support.com">
-                                                        m@support.com
-                                                    </SelectItem>
+                                                    {operatorList.map(
+                                                        (item, idx) => (
+                                                            <SelectItem
+                                                                key={item.id}
+                                                                value={item.id}
+                                                            >
+                                                                {item.name}
+                                                            </SelectItem>
+                                                        )
+                                                    )}
                                                 </SelectContent>
                                             </Select>
 
@@ -219,15 +279,11 @@ export default function FilterForm() {
                             <div className="lg:col-span-2 flex justify-end gap-3">
                                 <Button
                                     variant="destructive"
+                                    type="reset"
+                                    onClick={onReset}
                                     className="cursor-pointer"
                                 >
                                     Reset
-                                </Button>
-                                <Button
-                                    variant="secondary"
-                                    className="cursor-pointer"
-                                >
-                                    Cancel
                                 </Button>
                                 <Button
                                     type="submit"

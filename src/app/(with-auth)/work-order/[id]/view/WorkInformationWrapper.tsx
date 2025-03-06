@@ -7,7 +7,7 @@ export default async function WorkInformationWrapper({ id }: { id: string }) {
         workInformationResponse.status === "error" ||
         !workInformationResponse.data
     ) {
-        throw workInformationResponse.error;
+        throw workInformationResponse.error?.message;
     }
     return <WorkInformationDetails workOrder={workInformationResponse.data} />;
 }

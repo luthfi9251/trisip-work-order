@@ -12,7 +12,7 @@ import {
 export default interface IWorkOrderRepository {
     create(workOrder: WorkOrderInputRecord, tx?: Transaction): Promise<void>;
     findLatestByDate(date: string): Promise<WorkOrderRecord | null>;
-    getAll(assigned_to?: string): Promise<WorkOrderRecord[]>;
+    getAll(assigned_to?: string): Promise<WorkOrder[]>;
     findById(id: number): Promise<WorkOrder | null>;
     update(
         idWorkOrder: number,

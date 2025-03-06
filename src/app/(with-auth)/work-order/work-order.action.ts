@@ -51,7 +51,7 @@ export const getOperatorsAction = async (): Promise<
 };
 
 export const getAllWorkOrdersAction = async (): Promise<
-    ServerResponse<WorkOrderRecord[]>
+    ServerResponse<WorkOrder[]>
 > => {
     try {
         let session = await getUserSession();
@@ -82,7 +82,7 @@ export const getAllWorkOrdersAction = async (): Promise<
             status: "error",
             data: [],
             error: {
-                message: "Error when creating work order!",
+                message: "Error when getting all work order!",
                 type: "Error",
             },
         };

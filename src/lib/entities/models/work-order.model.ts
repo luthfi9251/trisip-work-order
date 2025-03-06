@@ -9,9 +9,10 @@ export const WorkOrderStatus = {
 
 export type WorkOrderStatusType = keyof typeof WorkOrderStatus;
 
-export type WorkOrderUserAssigned = Omit<User, "password" | "role">;
+export type WorkOrderUserAssigned = Omit<User, "password" | "role" | "email">;
 
 export type WorkOrder = {
+    id: number;
     wo_num: string;
     product_name: string;
     quantity: number;
@@ -24,12 +25,12 @@ export type WorkOrder = {
 
 export type WorkOrderCreateDTO = Omit<
     WorkOrder,
-    "wo_num" | "assigned_to" | "created_by"
+    "wo_num" | "assigned_to" | "created_by" | "id"
 > & { assigned_to_id: string };
 
 export type WorkOrderInputRecord = Omit<
     WorkOrder,
-    "assigned_to" | "created_by"
+    "assigned_to" | "created_by" | "id"
 > & {
     assigned_to: string;
     created_by: string;
@@ -38,7 +39,6 @@ export type WorkOrderInputRecord = Omit<
 export type WorkOrderUpdateRecord = WorkOrderInputRecord & { id: number };
 
 export type WorkOrderRecord = Omit<WorkOrder, "assigned_to" | "created_by"> & {
-    id: number;
     assigned_to: string;
     created_by: string;
 };

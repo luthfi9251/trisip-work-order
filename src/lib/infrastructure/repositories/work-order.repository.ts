@@ -53,7 +53,8 @@ export default class WorkOrderRepository implements IWorkOrderRepository {
         }
     }
 
-    async getAll(assigned_to?: string): Promise<WorkOrderRecord[]> {
+    async getAll(assigned_to?: string): Promise<WorkOrder[]> {
+        const createdUser = aliasedTable(usersTable, "created_by_table");
         const result = await db
             .select({
                 id: workOrderTable.id,
@@ -63,8 +64,14 @@ export default class WorkOrderRepository implements IWorkOrderRepository {
                 result_quantity: workOrderTable.result_quantity,
                 deadline: workOrderTable.deadline,
                 status: workOrderTable.status,
-                assigned_to: usersTable.name,
-                created_by: workOrderTable.created_by,
+                assigned_to: {
+                    id: usersTable.id,
+                    name: usersTable.name,
+                },
+                created_by: {
+                    id: createdUser.id,
+                    name: createdUser.name,
+                },
             })
             .from(workOrderTable)
             .where(
@@ -73,12 +80,13 @@ export default class WorkOrderRepository implements IWorkOrderRepository {
                     : undefined
             )
             .orderBy(desc(workOrderTable.wo_num))
+            .leftJoin(usersTable, eq(workOrderTable.assigned_to, usersTable.id))
             .leftJoin(
-                usersTable,
-                eq(workOrderTable.assigned_to, usersTable.id)
+                createdUser,
+                eq(workOrderTable.created_by, createdUser.id)
             );
 
-        return result as WorkOrderRecord[];
+        return result as WorkOrder[];
     }
 
     async findById(id: number): Promise<WorkOrder | null> {

@@ -26,6 +26,7 @@ const presenter = (workOrder: WorkOrder, id: number): WorkOrderRecord => ({
     product_name: workOrder.product_name,
     created_by: workOrder.created_by.name,
     assigned_to: workOrder.assigned_to.name,
+    result_quantity: workOrder.result_quantity,
     deadline: workOrder.deadline,
     quantity: workOrder.quantity,
     status: workOrder.status,

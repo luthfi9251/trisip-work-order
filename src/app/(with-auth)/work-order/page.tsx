@@ -8,6 +8,10 @@ export default async function Page() {
     const session = await getUserSession();
     const workOrderData = await getAllWorkOrdersAction();
 
+    if (workOrderData.status == "error") {
+        throw workOrderData.error?.message;
+    }
+
     return (
         <AuthProvider session={session}>
             <div className="w-full">

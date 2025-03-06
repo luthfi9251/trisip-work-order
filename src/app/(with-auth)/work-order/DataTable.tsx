@@ -35,12 +35,18 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import FilterForm from "./FilterForm";
-import { WorkOrderRecord } from "@/lib/entities/models/work-order.model";
-import { format } from "date-fns";
+import { WorkOrder } from "@/lib/entities/models/work-order.model";
+import {
+    format,
+    isAfter,
+    isBefore,
+    isWithinInterval,
+    parseISO,
+} from "date-fns";
 import { UserRole } from "@/lib/entities/models/user.model";
 import useRoleCheck from "@/hooks/use-role-check";
 
-const columnsList: ColumnDef<WorkOrderRecord, any>[] = [
+const columnsList: ColumnDef<WorkOrder, any>[] = [
     {
         accessorKey: "wo_num",
         header: "No. Work Order",
@@ -54,15 +60,65 @@ const columnsList: ColumnDef<WorkOrderRecord, any>[] = [
         header: "Quantity",
     },
     {
+        id: "result_quantity",
+        accessorKey: "result_quantity",
+        header: "Result Quantity",
+    },
+    {
+        id: "deadline",
         accessorKey: "deadline",
         header: "Deadline",
         cell: (props) => {
             return format(props.row.original.deadline, "EEEE, d MMMM yyyy");
         },
+        filterFn: (
+            row,
+            columnId,
+            filterValue: { startDate?: string; endDate?: string }
+        ) => {
+            const rawValue = row.original.deadline;
+            if (!rawValue) return false;
+
+            const rowDate = rawValue;
+            const { startDate, endDate } = filterValue;
+
+            if (!startDate && !endDate) return true;
+
+            if (startDate && !endDate) {
+                return (
+                    isAfter(rowDate, parseISO(startDate)) ||
+                    rowDate.getTime() === parseISO(startDate).getTime()
+                );
+            }
+
+            if (!startDate && endDate) {
+                return (
+                    isBefore(rowDate, parseISO(endDate)) ||
+                    rowDate.getTime() === parseISO(endDate).getTime()
+                );
+            }
+
+            if (startDate && endDate) {
+                return isWithinInterval(rowDate, {
+                    start: parseISO(startDate),
+                    end: parseISO(endDate),
+                });
+            } else {
+                return true;
+            }
+        },
     },
     {
-        accessorKey: "assigned_to",
+        id: "assigned_to",
+        accessorKey: "assigned_to.name",
         header: "Assigned to",
+        filterFn: (row, columnId, filterValue?: string) => {
+            const asignmentId = row.original.assigned_to.id;
+            if (!filterValue) {
+                return true;
+            }
+            return asignmentId === filterValue;
+        },
     },
     {
         accessorKey: "status",
@@ -128,10 +184,22 @@ const columnsList: ColumnDef<WorkOrderRecord, any>[] = [
 ];
 
 interface DataTableProps {
-    data: WorkOrderRecord[];
+    data: WorkOrder[];
 }
 
-function TableActionHeader({ table }: { table: TabelType<WorkOrderRecord> }) {
+export type TableFilterType = {
+    start_date?: string;
+    end_date?: string;
+    assigned_to?: string;
+};
+
+function TableActionHeader({
+    table,
+    onFilterChange,
+}: {
+    table: TabelType<WorkOrder>;
+    onFilterChange: (filter: TableFilterType) => void;
+}) {
     const isProductionMager = useRoleCheck(UserRole.PRODUCTION_MANAGER);
     const isOperator = useRoleCheck(UserRole.OPERATOR);
 
@@ -151,7 +219,7 @@ function TableActionHeader({ table }: { table: TabelType<WorkOrderRecord> }) {
                 className="max-w-sm"
             />
             <div className="flex items-center gap-2">
-                <FilterForm />
+                <FilterForm onFilterChange={onFilterChange} />
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="outline">
@@ -210,10 +278,11 @@ function TableActionHeader({ table }: { table: TabelType<WorkOrderRecord> }) {
 
 export default function DataTable({ data }: DataTableProps) {
     const [sorting, setSorting] = useState<SortingState>([]);
+
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-    const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
-        {}
-    );
+    const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+        result_quantity: false,
+    });
     const [rowSelection, setRowSelection] = useState({});
 
     const table = useReactTable({
@@ -235,9 +304,17 @@ export default function DataTable({ data }: DataTableProps) {
         },
     });
 
+    const onFilterChange = (filter: TableFilterType) => {
+        table.getColumn("deadline")?.setFilterValue({
+            startDate: filter.start_date,
+            endDate: filter.end_date,
+        });
+        table.getColumn("assigned_to")?.setFilterValue(filter.assigned_to);
+    };
+
     return (
         <div className="w-full">
-            <TableActionHeader table={table} />
+            <TableActionHeader table={table} onFilterChange={onFilterChange} />
             <div className="rounded-md border">
                 <Table>
                     <TableHeader>
