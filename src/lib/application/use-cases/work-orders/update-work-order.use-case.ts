@@ -28,6 +28,7 @@ export class UpdateWorkOrderUseCase {
         const updatedData: Partial<WorkOrderUpdateRecord> = {
             product_name: workOrderData.product_name,
             deadline: workOrderData.deadline,
+            result_quantity: workOrderData.result_quantity,
             quantity: workOrderData.quantity,
             status: workOrderData.status,
             assigned_to: workOrderData.assigned_to,

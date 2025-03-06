@@ -1,15 +1,17 @@
 import { Transaction, db } from "@/db";
 import { usersTable } from "@/db/schema/user";
-import { workOrderTable } from "@/db/schema/work-order";
+import { workOrderProgressTable, workOrderTable } from "@/db/schema/work-order";
 import IWorkOrderRepository from "@/lib/application/repositories/work-order.repository.interface";
 import {
     WorkOrder,
     WorkOrderInputRecord,
+    WorkOrderProgress,
+    WorkOrderProgressInput,
     WorkOrderRecord,
     WorkOrderUpdateRecord,
 } from "@/lib/entities/models/work-order.model";
 import { endOfDay, parseISO, startOfDay } from "date-fns";
-import { aliasedTable, and, desc, eq, gte, lt } from "drizzle-orm";
+import { aliasedTable, and, asc, desc, eq, gte, lt } from "drizzle-orm";
 
 export default class WorkOrderRepository implements IWorkOrderRepository {
     async create(
@@ -58,6 +60,7 @@ export default class WorkOrderRepository implements IWorkOrderRepository {
                 wo_num: workOrderTable.wo_num,
                 product_name: workOrderTable.product_name,
                 quantity: workOrderTable.quantity,
+                result_quantity: workOrderTable.result_quantity,
                 deadline: workOrderTable.deadline,
                 status: workOrderTable.status,
                 assigned_to: usersTable.name,
@@ -86,6 +89,7 @@ export default class WorkOrderRepository implements IWorkOrderRepository {
                 wo_num: workOrderTable.wo_num,
                 product_name: workOrderTable.product_name,
                 quantity: workOrderTable.quantity,
+                result_quantity: workOrderTable.result_quantity,
                 deadline: workOrderTable.deadline,
                 status: workOrderTable.status,
                 assigned_to: {
@@ -119,16 +123,56 @@ export default class WorkOrderRepository implements IWorkOrderRepository {
         workOrder: Partial<WorkOrderUpdateRecord>,
         tx?: Transaction | undefined
     ): Promise<void> {
-        await db
+        const invoker = tx ?? db;
+        await invoker
             .update(workOrderTable)
             .set({
                 product_name: workOrder.product_name,
                 deadline: workOrder.deadline,
                 quantity: workOrder.quantity,
+                result_quantity: workOrder.result_quantity,
                 wo_num: workOrder.wo_num,
                 assigned_to: workOrder.assigned_to,
                 status: workOrder.status,
             })
             .where(eq(workOrderTable.id, idWorkOrder));
+    }
+
+    async createProgress(
+        progress: WorkOrderProgressInput,
+        report_by: string,
+        tx?: Transaction | undefined
+    ): Promise<void> {
+        const invoker = tx ?? db;
+        await invoker.insert(workOrderProgressTable).values({
+            work_order_id: progress.work_order_id,
+            description: progress.description,
+            date: progress.date,
+            report_by: report_by,
+        });
+    }
+
+    async getAllProgress(workOrderId: number): Promise<WorkOrderProgress[]> {
+        const result = await db
+            .select({
+                id: workOrderProgressTable.id,
+                date: workOrderProgressTable.date,
+                report_by: {
+                    name: usersTable.name,
+                    id: usersTable.id,
+                    email: usersTable.email,
+                },
+                work_order_id: workOrderProgressTable.work_order_id,
+                description: workOrderProgressTable.description,
+            })
+            .from(workOrderProgressTable)
+            .where(eq(workOrderProgressTable.work_order_id, workOrderId))
+            .orderBy(asc(workOrderProgressTable.date))
+            .leftJoin(
+                usersTable,
+                eq(workOrderProgressTable.report_by, usersTable.id)
+            );
+
+        return result as WorkOrderProgress[];
     }
 }

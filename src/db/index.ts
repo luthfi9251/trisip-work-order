@@ -2,11 +2,7 @@ import "dotenv/config";
 import { drizzle } from "drizzle-orm/mysql2";
 import { usersTable } from "./schema/user";
 import { roleTable } from "./schema/role";
-import {
-    workOrderBatchTable,
-    workOrderProgressTable,
-    workOrderTable,
-} from "./schema/work-order";
+import { workOrderProgressTable, workOrderTable } from "./schema/work-order";
 import {
     MySqlQueryResultHKT,
     MySqlTransaction,
@@ -21,7 +17,6 @@ export const db = drizzle({
 const schemaGroup = {
     ...usersTable,
     ...roleTable,
-    ...workOrderBatchTable,
     ...workOrderProgressTable,
     ...workOrderTable,
 };

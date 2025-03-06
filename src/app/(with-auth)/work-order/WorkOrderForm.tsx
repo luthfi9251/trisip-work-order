@@ -69,7 +69,9 @@ export default function WorkOrderForm(props: WorkOrderFormProps) {
                 ? props.editingValue.assigned_to.id
                 : "",
             status: props.editingValue ? props.editingValue.status : "",
-            deadline: new Date(),
+            deadline: props.editingValue
+                ? new Date(props.editingValue.deadline)
+                : new Date(),
         },
     });
 

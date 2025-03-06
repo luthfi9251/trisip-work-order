@@ -6,7 +6,6 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
-import { WorkOrderProgressItemType } from "../type";
 import {
     Table,
     TableBody,
@@ -16,29 +15,34 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import * as dateFns from "date-fns";
-import ProgressForm from "./ProgressForm";
+import { ReactNode } from "react";
+import { WorkOrderProgressDTO } from "@/lib/entities/models/work-order.model";
 
 const WorkOrderProgressItem = ({
     progressItem,
 }: {
-    progressItem: WorkOrderProgressItemType;
+    progressItem: WorkOrderProgressDTO;
 }) => {
     return (
         <TableRow>
             <TableCell>
                 {dateFns.format(progressItem.date, "EEEE, dd MMMM yyyy HH:mm")}
             </TableCell>
-            <TableCell>{progressItem.asigned_to}</TableCell>
-            <TableCell>{progressItem.asigned_to}</TableCell>
+            <TableCell>{progressItem.report_by}</TableCell>
+            <TableCell>{progressItem.description}</TableCell>
         </TableRow>
     );
 };
 
 type WorkOrderProgressProps = {
-    progress: WorkOrderProgressItemType[];
+    progress: WorkOrderProgressDTO[];
+    children?: ReactNode;
 };
 
-export default function WorkOrderProgres({ progress }: WorkOrderProgressProps) {
+export default async function WorkOrderProgres({
+    progress,
+    children,
+}: WorkOrderProgressProps) {
     return (
         <Card>
             <CardHeader>
@@ -66,7 +70,7 @@ export default function WorkOrderProgres({ progress }: WorkOrderProgressProps) {
                         ))}
                     </TableBody>
                 </Table>
-                <ProgressForm />
+                {children}
             </CardContent>
         </Card>
     );

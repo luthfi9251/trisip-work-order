@@ -3,6 +3,8 @@ import {
     WorkOrder,
     WorkOrderCreateDTO,
     WorkOrderInputRecord,
+    WorkOrderProgress,
+    WorkOrderProgressInput,
     WorkOrderRecord,
     WorkOrderUpdateRecord,
 } from "@/lib/entities/models/work-order.model";
@@ -17,4 +19,10 @@ export default interface IWorkOrderRepository {
         workOrder: Partial<WorkOrderUpdateRecord>,
         tx?: Transaction
     ): Promise<void>;
+    createProgress(
+        progress: WorkOrderProgressInput,
+        report_by: string,
+        tx?: Transaction
+    ): Promise<void>;
+    getAllProgress(workOrderId: number): Promise<WorkOrderProgress[]>;
 }

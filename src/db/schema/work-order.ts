@@ -7,6 +7,7 @@ export const workOrderTable = mysqlCore.mysqlTable("work_orders", {
     wo_num: mysqlCore.varchar({ length: 50 }).unique().notNull(),
     product_name: mysqlCore.varchar({ length: 255 }).notNull(),
     quantity: mysqlCore.int().notNull(),
+    result_quantity: mysqlCore.int().default(0),
     deadline: mysqlCore.datetime().notNull(),
     status: mysqlCore
         .mysqlEnum(["PENDING", "IN_PROGRESS", "COMPLETED", "CANCELED"])
@@ -41,23 +42,3 @@ export const workOrderProgressTable = mysqlCore.mysqlTable(
         ...timestamps,
     }
 );
-
-export const workOrderBatchTable = mysqlCore.mysqlTable("work_order_batches", {
-    id: mysqlCore.int().autoincrement().primaryKey(),
-    work_order_id: mysqlCore
-        .int()
-        .references(() => workOrderTable.id)
-        .notNull(),
-    batch_no: mysqlCore.varchar({ length: 50 }).unique().notNull(),
-    quantity: mysqlCore.int().notNull(),
-    status: mysqlCore
-        .mysqlEnum(["PENDING", "IN_PROGRESS", "COMPLETED", "CANCELED"])
-        .default("PENDING")
-        .notNull(),
-    created_by: mysqlCore
-        .varchar("created_by_id", { length: 255 })
-        .references(() => usersTable.id)
-        .notNull(),
-    ...timestamps,
-    ...softDeletes,
-});

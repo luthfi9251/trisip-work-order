@@ -115,7 +115,7 @@ const columnsList: ColumnDef<WorkOrderRecord, any>[] = [
                     {isOperator && (
                         <Button variant="primary" size="sm" asChild>
                             <Link
-                                href={`/work-order/${props.row.original.id}/edit`}
+                                href={`/work-order/${props.row.original.id}/process`}
                             >
                                 <Cog /> Process
                             </Link>

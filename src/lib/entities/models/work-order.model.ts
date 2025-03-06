@@ -15,6 +15,7 @@ export type WorkOrder = {
     wo_num: string;
     product_name: string;
     quantity: number;
+    result_quantity: number;
     deadline: Date;
     status: WorkOrderStatusType;
     assigned_to: WorkOrderUserAssigned;
@@ -40,4 +41,21 @@ export type WorkOrderRecord = Omit<WorkOrder, "assigned_to" | "created_by"> & {
     id: number;
     assigned_to: string;
     created_by: string;
+};
+
+export type WorkOrderProgress = {
+    id: number;
+    date: Date;
+    report_by: WorkOrderUserAssigned;
+    work_order_id: number;
+    description: string;
+};
+
+export type WorkOrderProgressInput = Omit<
+    WorkOrderProgress,
+    "id" | "report_by"
+>;
+
+export type WorkOrderProgressDTO = Omit<WorkOrderProgress, "report_by"> & {
+    report_by: string;
 };
