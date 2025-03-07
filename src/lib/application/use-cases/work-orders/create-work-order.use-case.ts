@@ -48,6 +48,7 @@ export class CreateWorkOrderUseCase {
             deadline: data.deadline,
             product_name: data.product_name,
             quantity: data.quantity,
+            result_quantity: 0,
             assigned_to: data.assigned_to_id,
             created_by: session.user.id,
         };

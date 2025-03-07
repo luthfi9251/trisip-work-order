@@ -12,6 +12,7 @@ import {
 import { AppSidebar } from "@/app/(with-auth)/AppSidebar";
 import { Separator } from "@/components/ui/separator";
 import { sidaBarUserInfo } from "../auth.action";
+import { URL } from "@/constant/url";
 
 export default async function layout({
     children,
@@ -34,7 +35,7 @@ export default async function layout({
                         <Breadcrumb>
                             <BreadcrumbList>
                                 <BreadcrumbItem className="hidden md:block">
-                                    <BreadcrumbLink href="/work-order">
+                                    <BreadcrumbLink href={URL.WORK_ORDER_HOME}>
                                         Work Order Management
                                     </BreadcrumbLink>
                                 </BreadcrumbItem>

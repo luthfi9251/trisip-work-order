@@ -29,6 +29,7 @@ export default function EditWorkFormWrapper({
             deadline: value.deadline,
             quantity: value.quantity,
             status: value.status as WorkOrderStatusType,
+            result_quantity: 0,
             created_by: "",
             wo_num: "",
         };

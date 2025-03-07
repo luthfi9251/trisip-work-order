@@ -59,3 +59,17 @@ export type WorkOrderProgressInput = Omit<
 export type WorkOrderProgressDTO = Omit<WorkOrderProgress, "report_by"> & {
     report_by: string;
 };
+
+export type WorkOrderSummaryProduct = {
+    product_name: string;
+    pending_quantity: number;
+    in_progress_quantity: number;
+    completed_quantity: number;
+    canceled_quantity: number;
+};
+
+export type WorkOrderSummaryOperator = {
+    operator_name: string;
+    product_name: string;
+    completed_quantity: number;
+};

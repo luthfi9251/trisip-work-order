@@ -45,6 +45,7 @@ import {
 } from "date-fns";
 import { UserRole } from "@/lib/entities/models/user.model";
 import useRoleCheck from "@/hooks/use-role-check";
+import { URL } from "@/constant/url";
 
 const columnsList: ColumnDef<WorkOrder, any>[] = [
     {
@@ -149,12 +150,13 @@ const columnsList: ColumnDef<WorkOrder, any>[] = [
         cell: (props) => {
             const isProductionMager = useRoleCheck(UserRole.PRODUCTION_MANAGER);
             const isOperator = useRoleCheck(UserRole.OPERATOR);
+            const isNotCancelOrCompleted =
+                props.row.original.status !== "CANCELED" &&
+                props.row.original.status !== "COMPLETED";
             return (
                 <div className="flex items-center gap-2">
                     <Button variant="secondary" size="sm" asChild>
-                        <Link
-                            href={`/work-order/${props.row.original.id}/view`}
-                        >
+                        <Link href={URL.WORK_ORDER_VIEW(props.row.original.id)}>
                             <Eye />
                             View
                         </Link>
@@ -162,16 +164,20 @@ const columnsList: ColumnDef<WorkOrder, any>[] = [
                     {isProductionMager && (
                         <Button variant="default" size="sm" asChild>
                             <Link
-                                href={`/work-order/${props.row.original.id}/edit`}
+                                href={URL.WORK_ORDER_EDIT(
+                                    props.row.original.id
+                                )}
                             >
                                 <Pencil /> Edit
                             </Link>
                         </Button>
                     )}
-                    {isOperator && (
+                    {isOperator && isNotCancelOrCompleted && (
                         <Button variant="primary" size="sm" asChild>
                             <Link
-                                href={`/work-order/${props.row.original.id}/process`}
+                                href={URL.WORK_ORDER_PROCESS(
+                                    props.row.original.id
+                                )}
                             >
                                 <Cog /> Process
                             </Link>
@@ -256,18 +262,22 @@ function TableActionHeader({
                         {isProductionMager && (
                             <>
                                 <DropdownMenuItem asChild>
-                                    <Link href="/work-order/create">
+                                    <Link href={URL.WORK_ORDER_CREATE}>
                                         Create work Order
                                     </Link>
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem>
-                                    Management Report
+                                <DropdownMenuItem asChild>
+                                    <Link href={URL.SUMMARY_PRODUCT_REPORT}>
+                                        Management Report
+                                    </Link>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem asChild>
+                                    <Link href={URL.SUMMARY_OPEERATOR_REPORT}>
+                                        Operator Report
+                                    </Link>
                                 </DropdownMenuItem>
                             </>
-                        )}
-                        {isOperator && (
-                            <DropdownMenuItem>Operator Report</DropdownMenuItem>
                         )}
                     </DropdownMenuContent>
                 </DropdownMenu>

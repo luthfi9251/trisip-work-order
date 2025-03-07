@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/sidebar";
 import NavMenu from "./NavMenu";
 import NavUser from "./NavUser";
+import { URL } from "@/constant/url";
 const data = {
     user: {
         name: "shadcn",
@@ -23,7 +24,7 @@ const data = {
     projects: [
         {
             name: "Work Orders",
-            url: "/work-orders",
+            url: URL.WORK_ORDER_HOME,
             icon: BriefcaseBusiness,
         },
     ],

@@ -8,10 +8,12 @@ import {
     WorkOrderProgress,
     WorkOrderProgressInput,
     WorkOrderRecord,
+    WorkOrderSummaryOperator,
+    WorkOrderSummaryProduct,
     WorkOrderUpdateRecord,
 } from "@/lib/entities/models/work-order.model";
 import { endOfDay, parseISO, startOfDay } from "date-fns";
-import { aliasedTable, and, asc, desc, eq, gte, lt } from "drizzle-orm";
+import { aliasedTable, and, asc, desc, eq, gte, lt, sql } from "drizzle-orm";
 
 export default class WorkOrderRepository implements IWorkOrderRepository {
     async create(
@@ -182,5 +184,39 @@ export default class WorkOrderRepository implements IWorkOrderRepository {
             );
 
         return result as WorkOrderProgress[];
+    }
+
+    async getSummaryWOProduct(): Promise<WorkOrderSummaryProduct[]> {
+        const workOrderSummary = await db
+            .select({
+                product_name: workOrderTable.product_name,
+                pending_quantity: sql<number>`SUM(CASE WHEN ${workOrderTable.status} = 'PENDING' THEN ${workOrderTable.quantity} ELSE 0 END)`,
+                in_progress_quantity: sql<number>`SUM(CASE WHEN ${workOrderTable.status} = 'IN_PROGRESS' THEN ${workOrderTable.quantity} ELSE 0 END)`,
+                completed_quantity: sql<number>`SUM(CASE WHEN ${workOrderTable.status} = 'COMPLETED' THEN ${workOrderTable.result_quantity} ELSE 0 END)`,
+                canceled_quantity: sql<number>`SUM(CASE WHEN ${workOrderTable.status} = 'CANCELED' THEN ${workOrderTable.quantity} ELSE 0 END)`,
+            })
+            .from(workOrderTable)
+            .groupBy(workOrderTable.product_name);
+
+        return workOrderSummary;
+    }
+
+    async getSummaryWOOperator(): Promise<WorkOrderSummaryOperator[]> {
+        const result = await db
+            .select({
+                operator_name: usersTable.name,
+                product_name: workOrderTable.product_name,
+                completed_quantity: sql<number>`SUM(${workOrderTable.result_quantity})`,
+            })
+            .from(workOrderTable)
+            .innerJoin(
+                usersTable,
+                eq(workOrderTable.assigned_to, usersTable.id)
+            )
+            .where(eq(workOrderTable.status, "COMPLETED"))
+            .groupBy(usersTable.name, workOrderTable.product_name)
+            .orderBy(usersTable.name, workOrderTable.product_name);
+
+        return result;
     }
 }

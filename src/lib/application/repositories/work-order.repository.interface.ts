@@ -6,6 +6,8 @@ import {
     WorkOrderProgress,
     WorkOrderProgressInput,
     WorkOrderRecord,
+    WorkOrderSummaryOperator,
+    WorkOrderSummaryProduct,
     WorkOrderUpdateRecord,
 } from "@/lib/entities/models/work-order.model";
 
@@ -25,4 +27,6 @@ export default interface IWorkOrderRepository {
         tx?: Transaction
     ): Promise<void>;
     getAllProgress(workOrderId: number): Promise<WorkOrderProgress[]>;
+    getSummaryWOProduct(): Promise<WorkOrderSummaryProduct[]>;
+    getSummaryWOOperator(): Promise<WorkOrderSummaryOperator[]>;
 }

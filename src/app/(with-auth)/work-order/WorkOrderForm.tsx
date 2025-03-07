@@ -31,7 +31,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { WorkOrderType } from "./type";
 import { Label } from "@/components/ui/label";
 import { User } from "@/lib/entities/models/user.model";
 import {

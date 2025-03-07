@@ -1,6 +1,7 @@
 "use server";
 
 import { getUserSession } from "@/app/auth.action";
+import { URL } from "@/constant/url";
 import {
     OperationalError,
     UnauthorizedError,
@@ -56,7 +57,7 @@ export const getAllWorkOrdersAction = async (): Promise<
     try {
         let session = await getUserSession();
         if (!session || !session.user) {
-            redirect("/");
+            redirect(URL.LOGIN);
         }
         const workOrders = await getAllWorkOrderController(session.user.id);
         return {
@@ -95,7 +96,7 @@ export const createWorkOrderAction = async (
     try {
         let session = await getUserSession();
         if (!session) {
-            redirect("/");
+            redirect(URL.LOGIN);
         }
         const create = await createWorkOrderController(data, session);
         return {
@@ -134,7 +135,7 @@ export const getEditWorkOrderAction = async (
     try {
         let session = await getUserSession();
         if (!session || !session.user) {
-            redirect("/");
+            redirect(URL.LOGIN);
         }
         const data = await getEditWorkOrderController(
             idWorkOrder,
@@ -187,7 +188,7 @@ export const updateWorkOrderAction = async (
     try {
         let session = await getUserSession();
         if (!session || !session.user) {
-            redirect("/");
+            redirect(URL.LOGIN);
         }
         await updateWorkOrderController(
             {
@@ -203,7 +204,7 @@ export const updateWorkOrderAction = async (
             },
             session.user.id
         );
-        revalidatePath("/work-order");
+        revalidatePath(URL.WORK_ORDER_HOME);
         return {
             data: null,
             error: null,
@@ -249,7 +250,7 @@ export const getViewWorkOrderAction = async (
     try {
         let session = await getUserSession();
         if (!session || !session.user) {
-            redirect("/");
+            redirect(URL.LOGIN);
         }
         const data = await getViewWorkOrderController(
             idWorkOrder,
@@ -301,10 +302,10 @@ export const startWorkOrderAction = async (
     try {
         let session = await getUserSession();
         if (!session || !session.user) {
-            redirect("/");
+            redirect(URL.LOGIN);
         }
         await startWorkOrderController(idWorkOrder, session.user.id);
-        revalidatePath(`/work-order/${idWorkOrder}/process`);
+        revalidatePath(URL.WORK_ORDER_PROCESS(idWorkOrder));
         return {
             data: null,
             error: null,
@@ -351,14 +352,14 @@ export const endWorkOrderAction = async (
     try {
         let session = await getUserSession();
         if (!session || !session.user) {
-            redirect("/");
+            redirect(URL.LOGIN);
         }
         await endWorkOrderController(
             idWorkOrder,
             result_quantity,
             session.user.id
         );
-        revalidatePath(`/work-order/${idWorkOrder}/process`);
+        revalidatePath(URL.WORK_ORDER_PROCESS(idWorkOrder));
         return {
             data: null,
             error: null,
@@ -404,10 +405,10 @@ export const addProgressWorkAction = async (
     try {
         let session = await getUserSession();
         if (!session || !session.user) {
-            redirect("/");
+            redirect(URL.LOGIN);
         }
         await addProgressWorkController(progressData, session.user.id);
-        revalidatePath(`/work-order/${progressData.work_order_id}/process`);
+        revalidatePath(URL.WORK_ORDER_PROCESS(progressData.work_order_id));
         return {
             data: null,
             error: null,
@@ -453,7 +454,7 @@ export const getAllProgressAction = async (
     try {
         let session = await getUserSession();
         if (!session || !session.user) {
-            redirect("/");
+            redirect(URL.LOGIN);
         }
         const data = await getAllProgressController(
             idWorkOrder,
