@@ -31,7 +31,7 @@
 
 ---
 
-### Instalasi Secara Docker
+### Instalasi Dengan Docker
 
 1. **Sesuaikan Konfigurasi Docker Compose**  
    Pastikan file `docker-compose.yml` telah dikonfigurasi sesuai kebutuhan.
@@ -40,6 +40,7 @@
     ```sh
     docker compose up --build -d
     ```
+    Tidak perlu melakukan import database, karena sudah dihandle oleh docker compose.
 3. **Akses Aplikasi**  
    Aplikasi dapat diakses melalui `http://localhost:3000`
 
