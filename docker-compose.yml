@@ -1,0 +1,41 @@
+version: "3.8"
+
+services:
+    app:
+        container_name: trisip_work_order
+        build:
+            context: .
+            dockerfile: Dockerfile
+        ports:
+            - "3000:3000"
+        depends_on:
+            - db
+        environment:
+            - DATABASE_URL=mysql://root:password@db:3306/trisip_work_order
+        networks:
+            - trisip_network
+        volumes:
+            - .:/app
+            - /app/node_modules
+
+    db:
+        container_name: mysql_db
+        image: mysql:8.0-debian
+        environment:
+            MYSQL_ROOT_PASSWORD: password
+            MYSQL_DATABASE: trisip_work_order
+            MYSQL_USER: user
+            MYSQL_PASSWORD: password
+        ports:
+            - "3308:3306"
+        networks:
+            - trisip_network
+        volumes:
+            - wo_mysql_data:/var/lib/mysql
+            - ./dump_trisip_work_order.sql:/docker-entrypoint-initdb.d/dump.sql
+
+volumes:
+    wo_mysql_data:
+
+networks:
+    trisip_network:
